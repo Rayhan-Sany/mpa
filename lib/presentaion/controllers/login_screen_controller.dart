@@ -2,31 +2,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreenController extends GetxController {
   bool isInProgress = false;
   bool isLoggedIn = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // @override
-  // onInit() {
-  //   super.onInit();
-  //   isAlreadyLoggedIn();
-  // }
+  @override
+  onInit() {
+    super.onInit();
+    isAlreadyLoggedIn();
+  }
 
   Future<void> loginUser(String email, String password) async {
     try {
       isInProgress = true;
       update();
-      // final UserCredential userCredential = await
-      print(await _auth.signInWithEmailAndPassword(
-          email: email, password: password));
+      final UserCredential userCredential = await _auth
+          .signInWithEmailAndPassword(email: email, password: password);
 
-      // String? token = await userCredential.user?.getIdToken();
-      // if (token != null) {
-      //   final storage = await SharedPreferences.getInstance();
-      //   await storage.setString('token', token);
-      // }
+      String? token = await userCredential.user?.getIdToken();
+      if (token != null) {
+        final storage = await SharedPreferences.getInstance();
+        await storage.setString('token', token);
+      }
 
       isInProgress = false;
       update();
@@ -61,13 +61,13 @@ class LoginScreenController extends GetxController {
   }
 
   Future<void> isAlreadyLoggedIn() async {
-    //   final storage = await SharedPreferences.getInstance();
-    //   String? token = storage.getString('token');
+    final storage = await SharedPreferences.getInstance();
+    String? token = storage.getString('token');
 
-    //   print(token);
-    //   if (token != null) {
-    //     isLoggedIn = true;
-    //     update();
-    //   }
+    print(token);
+    if (token != null) {
+      isLoggedIn = true;
+      update();
+    }
   }
 }
