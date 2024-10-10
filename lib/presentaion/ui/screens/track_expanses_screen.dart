@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_color.dart';
+import 'package:mpa/presentaion/controllers/user_controller.dart';
+import 'package:mpa/presentaion/ui/screens/add_budget_screen.dart';
 import 'package:mpa/presentaion/ui/screens/view_expanses_screen.dart';
 import 'package:mpa/widgets/bottom_nav_bar.dart';
 import 'package:mpa/widgets/circular_chart.dart';
@@ -13,6 +15,14 @@ class TrackExpansesScreen extends StatefulWidget {
 }
 
 class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    final userController = Get.find<UserController>();
+    userController.isNewUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
