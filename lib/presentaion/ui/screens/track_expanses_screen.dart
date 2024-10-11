@@ -19,7 +19,6 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
   void initState() {
     // TODO: implement initState
     final userController = Get.find<UserController>();
-    userController.isNewUser();
     super.initState();
   }
 

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
@@ -88,6 +86,7 @@ class AddBudgetScreen extends StatelessWidget {
       );
   void onPressAddBudgetButton() {
     final addBudgetController = Get.find<AddBudgetScreenController>();
+    //addBudgetController.addBudgetForNewUser();
     addBudgetController.addBudget();
   }
 }
