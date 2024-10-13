@@ -1,7 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/controller/add_expanse_controller.dart';
+import 'package:mpa/Data/controller/getDataController.dart';
+import 'package:mpa/Data/model/full_month_data_model.dart';
+import 'package:mpa/Data/model/single_day_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
+import 'package:mpa/app/utils/app_font_styles.dart';
+import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
+import 'package:mpa/presentaion/ui/screens/add_budget_screen.dart';
 import 'package:mpa/presentaion/ui/screens/predefine_expanse_list_screen.dart';
 import 'package:mpa/presentaion/ui/utils/assets_path.dart';
 
@@ -14,6 +20,14 @@ class ViewExpanses extends StatefulWidget {
 
 class _ViewExpansesState extends State<ViewExpanses> {
   bool isTodayIsSelected = true;
+  FullMonthDataModel? monthlyData;
+  SingleDayDataModel? todaysData;
+  @override
+  void initState() {
+    getMonthlyData();
+    getTodaysData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +50,7 @@ class _ViewExpansesState extends State<ViewExpanses> {
             color: AppColor.primaryColor,
             height: MediaQuery.of(context).size.height / 3.5,
             width: double.infinity,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.only(top: 60, left: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,14 +58,19 @@ class _ViewExpansesState extends State<ViewExpanses> {
                   Text("My Budget",
                       style:
                           TextStyle(fontSize: 20, color: AppColor.textColor)),
-                  Text(
-                    " 4041",
-                    style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        height: 0.8,
-                        color: AppColor.textColor),
-                  ),
+                  GetBuilder<GetdataController>(builder: (getdataController) {
+                    return getdataController.isInProgress
+                        ? const CircularProgressIndicator(
+                            color: AppColor.textColor)
+                        : Text(
+                            monthlyData?.totalBudget.toString() ?? "00",
+                            style: TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                height: 0.8,
+                                color: AppColor.textColor),
+                          );
+                  }),
                 ],
               ),
             ),
@@ -74,44 +93,77 @@ class _ViewExpansesState extends State<ViewExpanses> {
                 const SizedBox(
                   height: 15,
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(
                       top: 16.0, left: 16, right: 16, bottom: 8),
                   child: Row(children: [
-                    Text("January 29",
+                    Text(
+                        CurrentDateTimeReturnModel.month +
+                            " - " +
+                            CurrentDateTimeReturnModel.day,
                         style: TextStyle(
                           fontSize: 30,
                         )),
-                    Spacer(),
-                    Text(
-                      "360",
-                      style:
-                          TextStyle(fontSize: 30, color: AppColor.primaryColor),
-                    )
+                    const Spacer(),
+                    GetBuilder<GetdataController>(builder: (getdataController) {
+                      return getdataController.isInProgress
+                          ? const CircularProgressIndicator()
+                          : Text(
+                              monthlyData?.totalExpanse.toString() ?? "0",
+                              style: const TextStyle(
+                                  fontSize: 30, color: AppColor.primaryColor),
+                            );
+                    })
                   ]),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: ListTile(
-                        leading: SizedBox(
-                          height: 30,
-                          width: 30,
-                          child: Image.asset(AssetsPath.notesLogo),
-                        ),
-                        title: Text("Electric Bill",
-                            style: TextStyle(fontSize: 25)),
-                        trailing: Text("360",
-                            style: TextStyle(
-                                fontSize: 20, color: AppColor.primaryColor)),
-                        subtitle: Text(isTodayIsSelected ? "Today" : "18 July",
-                            style: TextStyle(color: Colors.grey)),
-                      ),
-                    ),
-                    itemCount: 20,
-                    shrinkWrap: true,
-                  ),
+                  child: GetBuilder<GetdataController>(
+                      builder: (getdataController) {
+                    return getdataController.isInProgress
+                        ? Center(child: const CircularProgressIndicator())
+                        : ListView.builder(
+                            itemBuilder: (context, index) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: ListTile(
+                                leading: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: Image.asset(AssetsPath.notesLogo),
+                                ),
+                                title: Text(
+                                    isTodayIsSelected
+                                        ? todaysData?.expansesList[index]
+                                            ["ExpanseCause"]
+                                        : monthlyData?.expansesList[index]
+                                            ["ExpanseCause"],
+                                    style: TextStyle(fontSize: 25)),
+                                trailing: Text(
+                                    isTodayIsSelected
+                                        ? todaysData?.expansesList[index]
+                                            ["ExpanseAmount"]
+                                        : monthlyData?.expansesList[index]
+                                            ["ExpanseAmount"],
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: AppColor.primaryColor)),
+                                subtitle: Text(
+                                    isTodayIsSelected
+                                        ? "Today"
+                                        : monthlyData?.expansesList[index]
+                                                    ["AddedAt"]
+                                                .toDate()
+                                                .toString()
+                                                .replaceRange(10, 23, "") ??
+                                            "",
+                                    style: const TextStyle(color: Colors.grey)),
+                              ),
+                            ),
+                            itemCount: isTodayIsSelected
+                                ? todaysData?.expansesList.length ?? 0
+                                : monthlyData?.expansesList.length ?? 0,
+                            shrinkWrap: true,
+                          );
+                  }),
                 )
               ],
             ),
@@ -192,39 +244,16 @@ class _ViewExpansesState extends State<ViewExpanses> {
   ElevatedButton addBudgetButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () {
-          Navigator.pop(context);
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  backgroundColor: Colors.white,
-                  surfaceTintColor: Colors.white,
-                  title: const Column(
-                    children: [
-                      TextField(
-                        enabled: true,
-                        decoration: InputDecoration(
-                          label: Text("Budget"),
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    ElevatedButton(onPressed: () {}, child: const Text("ok")),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Cancel")),
-                  ],
-                );
-              });
+          Get.to(const AddBudgetScreen());
         },
         style: elevatedButtonStyle,
         child: const Text("Add Budget"));
   }
 
   ElevatedButton addExpanseButton(BuildContext context) {
+    final TextEditingController expanseCauseTEController =
+        TextEditingController();
+    final TextEditingController amountTEController = TextEditingController();
     return ElevatedButton(
       onPressed: () {
         Navigator.pop(context);
@@ -236,7 +265,7 @@ class _ViewExpansesState extends State<ViewExpanses> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        Get.to(PredefineExpanseListScreen());
+                        Get.to(const PredefineExpanseListScreen());
                       },
                       style: elevatedButtonStyle,
                       child: const Text("Listed Expanse"),
@@ -246,7 +275,51 @@ class _ViewExpansesState extends State<ViewExpanses> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        checkCollection();
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Column(
+                              children: [
+                                Text("Add Expanse",
+                                    style: AppFontStyles.playfairDisplay700S30),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                TextField(
+                                  controller: expanseCauseTEController,
+                                  decoration: const InputDecoration(
+                                      hintText: "Expanse Cause",
+                                      contentPadding:
+                                          EdgeInsets.only(left: 10)),
+                                ),
+                                const SizedBox(height: 10),
+                                TextField(
+                                  controller: amountTEController,
+                                  decoration: const InputDecoration(
+                                      hintText: "Amount",
+                                      contentPadding:
+                                          EdgeInsets.only(left: 10)),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(onPressed: () {
+                                  Get.find<AddExpnseController>().addExpanse(
+                                      amountTEController.text.toString().trim(),
+                                      expanseCauseTEController.text.toString());
+                                  Navigator.pop(context);
+                                }, child: GetBuilder<AddExpnseController>(
+                                    builder: (addExpnseController) {
+                                  return addExpnseController.inProgress
+                                      ? const SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: CircularProgressIndicator(
+                                              color: AppColor.textColor))
+                                      : const Text("Add");
+                                }))
+                              ],
+                            ),
+                          ),
+                        );
                       },
                       style: elevatedButtonStyle,
                       child: const Text("Custom Expanse"),
@@ -271,16 +344,11 @@ class _ViewExpansesState extends State<ViewExpanses> {
     );
   }
 
-  Future<void> checkCollection() async {
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc('q2wkpstixSc7GVgNQJW4dldg3F82')
-        .collection("expanseData")
-        .doc('m9RhYGWE08Wm3CbkCUeJ')
-        .snapshots()
-        .listen((DocumentSnapshot profileDoc) {
-      final dMap = profileDoc.data() as Map<String, dynamic>;
-      print(dMap);
-    });
+  Future<void> getMonthlyData() async {
+    monthlyData = await Get.find<GetdataController>().getFullMonthData();
+  }
+
+  Future<void> getTodaysData() async {
+    todaysData = await Get.find<GetdataController>().getSingleDayData();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/controller/getDataController.dart';
 import 'package:mpa/app/utils/features_list.dart';
 import 'package:mpa/presentaion/ui/screens/track_expanses_screen.dart';
 import 'package:mpa/presentaion/ui/screens/youtube_player_screen.dart';
@@ -42,7 +43,8 @@ class HomePage extends StatelessWidget {
           case 0:
             Get.to(const TrackExpansesScreen());
           case 2:
-            Get.to(const YoutubePlayerScreen());
+            Get.put(GetdataController()).getSingleDayData();
+          // Get.to(const YoutubePlayerScreen());
         }
       },
       child: FittedBox(

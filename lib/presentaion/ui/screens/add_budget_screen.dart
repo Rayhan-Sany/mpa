@@ -11,53 +11,80 @@ class AddBudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final budgetTEController = TextEditingController();
+    final budgetNameTEController = TextEditingController();
+
     return Scaffold(
+      resizeToAvoidBottomInset:
+          true, // This will allow the Scaffold to resize when the keyboard appears
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppPrimaryAppBar(),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const SizedBox(height: 30),
-                Text(
-                  "First Add Your Budget For This Month",
-                  style: AppFontStyles.playfairDisplay700S30,
+          Expanded(
+            // Ensure that this column doesn't overflow
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    Text(
+                      "First Add Your Budget For This Month",
+                      style: AppFontStyles.playfairDisplay700S30,
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: budgetTEController,
+                      decoration: InputDecoration(
+                          hintText: "Budget",
+                          contentPadding: EdgeInsets.only(left: 12)),
+                      keyboardType: TextInputType.number,
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: budgetNameTEController,
+                      decoration: InputDecoration(
+                          hintText: "Budget Name",
+                          contentPadding: EdgeInsets.only(left: 12)),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 16),
+                        child: Column(
+                          children: [
+                            suggestBudgetAmountRow(budgetTEController,
+                                valu1: "2000", valu2: "2500", valu3: "3000"),
+                            SizedBox(height: 20),
+                            suggestBudgetAmountRow(budgetTEController,
+                                valu1: "4000", valu2: "4500", valu3: "5000")
+                          ],
+                        )),
+                    SizedBox(height: 50),
+                    SizedBox(
+                      width: double.maxFinite,
+                      child: ElevatedButton(
+                        child: Text("Add"),
+                        onPressed: () {
+                          if (budgetTEController.text
+                              .toString()
+                              .trim()
+                              .isNotEmpty) {
+                            onPressAddBudgetButton(
+                                budget:
+                                    budgetTEController.text.toString().trim(),
+                                budgetName:
+                                    budgetNameTEController.text.toString());
+                          } else {
+                            print("Budget Can't Be Empty");
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: budgetTEController,
-                  decoration: InputDecoration(
-                      hintText: "Budget",
-                      contentPadding: EdgeInsets.only(left: 12)),
-                ),
-                Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 16),
-                    child: Column(
-                      children: [
-                        suggestBudgetAmountRow(budgetTEController,
-                            valu1: "2000", valu2: "2500", valu3: "3000"),
-                        SizedBox(height: 20),
-                        suggestBudgetAmountRow(budgetTEController,
-                            valu1: "4000", valu2: "4500", valu3: "5000")
-                      ],
-                    )),
-                SizedBox(height: 50),
-                SizedBox(
-                  width: double.maxFinite,
-                  child: ElevatedButton(
-                    child: Text("Add"),
-                    onPressed: () {
-                      onPressAddBudgetButton();
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-          Spacer(),
           BottomNavBar(),
         ],
       ),
@@ -84,9 +111,10 @@ class AddBudgetScreen extends StatelessWidget {
         },
         child: Text(value),
       );
-  void onPressAddBudgetButton() {
+
+  void onPressAddBudgetButton(
+      {required String budget, String budgetName = 'UnKnown'}) {
     final addBudgetController = Get.find<AddBudgetScreenController>();
-    //addBudgetController.addBudgetForNewUser();
-    addBudgetController.addBudget();
+    addBudgetController.addBudget(budget: budget, budgetName: budgetName);
   }
 }
