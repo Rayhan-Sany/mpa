@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 import 'package:mpa/presentaion/models/monthly_data_model.dart';
 
 class AddExpnseController extends GetxController {
-  bool inProgress = false;
+  RxBool inProgress = false.obs;
   Future<void> addExpanse(String amount, String expanseCause) async {
-    inProgress = true;
-    update();
+    inProgress.value = true;
     MonthlyDataModel? monthlyData;
     final firestore = FirebaseFirestore.instance;
     final docRef = firestore
@@ -33,6 +32,17 @@ class AddExpnseController extends GetxController {
     if (monthlyData != null) {
       print("------------------------------------");
       print(monthlyData?.dayList);
+      if (monthlyData?.dayList.last.keys !=
+          "(Day-${CurrentDateTimeReturnModel.day})") {
+        print(monthlyData?.dayList.last.keys);
+        monthlyData?.dayList.add({
+          "Day-${CurrentDateTimeReturnModel.day}": {
+            "Expanses": [],
+            "BudgetAdded": []
+          }
+        });
+        print("-----------------------------Day add korte hobe");
+      }
       monthlyData
           ?.dayList.last?["Day-${CurrentDateTimeReturnModel.day}"]?["Expanses"]
           .add(newExpanse);
@@ -44,7 +54,6 @@ class AddExpnseController extends GetxController {
         {CurrentDateTimeReturnModel.month: monthlyData?.dayList}
       ]
     });
-    inProgress = false;
-    update();
+    inProgress.value = false;
   }
 }

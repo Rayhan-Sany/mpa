@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/controller/getDataController.dart';
+import 'package:mpa/Data/model/full_month_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/ui/screens/view_expanses_screen.dart';
@@ -14,53 +16,56 @@ class TrackExpansesScreen extends StatefulWidget {
 }
 
 class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
+  Rx<FullMonthDataModel>? monthlyData;
+
   @override
   void initState() {
-    Get.find<UserController>();
     super.initState();
+    getMonthlyData();
+    Get.find<UserController>();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          budgetTitleBar(context),
-          const SizedBox(height: 50),
-          const CircularChart(),
-          const SizedBox(
-            height: 20,
-          ),
-          pieChartExplainer(Colors.greenAccent, 'Balance'),
-          pieChartExplainer(AppColor.primaryColor, 'Amount'),
-          pieChartExplainer(const Color(0xffffb200), 'Amount'),
-          const Spacer(),
-          Row(
-            children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: ElevatedButton(
-                    onPressed: () {
-                      Get.to(ViewExpanses());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.primaryColor,
-                        foregroundColor: AppColor.textColor,
-                        elevation: 10,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    child: const Text("View Expanses",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500))),
-              ),
-              const Spacer(),
-            ],
-          ),
-          const BottomNavBar()
-        ],
-      ),
-    );
+        body: Column(
+      children: [
+        budgetTitleBar(context),
+        const SizedBox(height: 50),
+        const CircularChart(),
+        const SizedBox(
+          height: 26,
+        ),
+        pieChartExplainer(Colors.greenAccent, 'First Week'),
+        pieChartExplainer(AppColor.primaryColor, '2nd Week'),
+        pieChartExplainer(const Color(0xffffb200), '3rd Week'),
+        pieChartExplainer(Color.fromARGB(255, 238, 83, 83), 'Last Week'),
+        const Spacer(),
+        Row(
+          children: [
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Get.to(() => const ViewExpanses());
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primaryColor,
+                      foregroundColor: AppColor.textColor,
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                  child: const Text("View Expanses",
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w500))),
+            ),
+            const Spacer(),
+          ],
+        ),
+        const BottomNavBar()
+      ],
+    ));
   }
 
   Widget pieChartExplainer(Color color, String title) {
@@ -99,26 +104,43 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
                   bottomRight: Radius.circular(25),
                   bottomLeft: Radius.circular(25))),
           child: Padding(
-            padding: const EdgeInsets.only(
-                top: 50.0, right: 16, left: 16, bottom: 16),
-            child: Row(
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                amountWithTitle('Budget', '4041', context),
-                const Spacer(),
-                amountWithTitle('Balance', '3000', context),
-                const Spacer(),
-                amountWithTitle('Expanse', '1041', context),
-              ],
-            ),
-          ))
+              padding: const EdgeInsets.only(
+                  top: 50.0, right: 16, left: 16, bottom: 16),
+              child: Obx(
+                () {
+                  return Row(
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      amountWithTitle(
+                          'Budget',
+                          monthlyData?.value.totalBudget.value.toString() ??
+                              '00',
+                          context),
+                      const Spacer(),
+                      amountWithTitle('Balance', calculateBalance(), context),
+                      const Spacer(),
+                      amountWithTitle(
+                          'Expanse',
+                          monthlyData?.value.totalExpanse.value.toString() ??
+                              '00',
+                          context),
+                    ],
+                  );
+                },
+              )))
     ]);
   }
 
   Color? getBalanceAmountColor() {
     Color? color = Colors.yellow[700];
-    if (true) color = Colors.red[400];
+    if ((int.tryParse(calculateBalance())! <= 500)) color = Colors.red[400];
     return color;
+  }
+
+  String calculateBalance() {
+    int balance = (monthlyData?.value.totalBudget.value ?? 0) -
+        (monthlyData?.value.totalExpanse.value ?? 0);
+    return balance.toString();
   }
 
   Widget amountWithTitle(String title, String amount, BuildContext context) {
@@ -138,37 +160,28 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
                 fontWeight: FontWeight.bold),
           ),
           Flexible(
-            child: Text(
-              amount,
-              style: TextStyle(
-                  color: (title != "Balance")
-                      ? AppColor.textColor
-                      : getBalanceAmountColor(),
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis),
-              maxLines: 2,
-            ),
-          ),
+              child: Get.find<GetdataController>().isInProgress.value
+                  ? const CircularProgressIndicator(
+                      color: AppColor.textColor,
+                    )
+                  : Text(
+                      amount,
+                      style: TextStyle(
+                          color: (title != "Balance")
+                              ? AppColor.textColor
+                              : getBalanceAmountColor(),
+                          fontSize: 23,
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis),
+                      maxLines: 2,
+                    )),
           if (title == "Balance") const Spacer(),
         ],
       ),
     );
   }
+
+  Future<void> getMonthlyData() async {
+    monthlyData = await Get.find<GetdataController>().getFullMonthData();
+  }
 }
-//
-// Container(
-// height: 60,
-// width: 60,
-// margin: EdgeInsets.only(bottom: 20, right: 20),
-// child: Card(
-// color: AppColor.primaryColor,
-// elevation: 10,
-// child: Center(
-// child: Icon(
-// Icons.add,
-// color: AppColor.textColor,
-// ),
-// ),
-// ),
-// )

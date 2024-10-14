@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 
 class SingleDayDataModel {
-  List expansesList;
-  int totalExapanse;
+  RxList expansesList;
+  RxInt totalExapanse;
   SingleDayDataModel({required this.expansesList, required this.totalExapanse});
   List get getExpansesList => expansesList;
-  int get getTodayTotalExapanse => totalExapanse;
+  int get getTodayTotalExapanse => totalExapanse.value;
 
   factory SingleDayDataModel.fromDocumentSnapshot(
       DocumentSnapshot documentSnapshot) {
@@ -17,17 +18,17 @@ class SingleDayDataModel {
 
     Map<String, dynamic> today = dayList.last;
 
-    List expansesList = [];
-    expansesList =
+    RxList expansesList = [].obs;
+    expansesList.value =
         today["Day-${CurrentDateTimeReturnModel.day}"]?["Expanses"] ?? [];
 
-    int totalExpanse = 0;
+    RxInt totalExpanse = 0.obs;
     for (int i = 0; i < expansesList.length; i++) {
-      totalExpanse += int.tryParse(expansesList[i]["ExpanseAmount"]) ?? 0;
+      totalExpanse.value += int.tryParse(expansesList[i]["ExpanseAmount"]) ?? 0;
     }
-    SingleDayDataModel TodaysData = SingleDayDataModel(
+    SingleDayDataModel todaysData = SingleDayDataModel(
         expansesList: expansesList, totalExapanse: totalExpanse);
 
-    return TodaysData;
+    return todaysData;
   }
 }

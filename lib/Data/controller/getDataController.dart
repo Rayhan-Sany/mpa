@@ -5,7 +5,7 @@ import 'package:mpa/Data/model/single_day_data_model.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 
 class GetdataController extends GetxController {
-  bool isInProgress = false;
+  RxBool isInProgress = false.obs;
   Future<DocumentSnapshot?> getAllDataForCurrentMonth() async {
     DocumentSnapshot? docSnapshot;
     final firestore = FirebaseFirestore.instance;
@@ -27,31 +27,36 @@ class GetdataController extends GetxController {
     return docSnapshot;
   }
 
-  Future<FullMonthDataModel?> getFullMonthData() async {
-    isInProgress = true;
-    update();
+  Future<Rx<FullMonthDataModel>?> getFullMonthData() async {
+    isInProgress.value = true;
+
     final DocumentSnapshot? documentSnapshot =
         await getAllDataForCurrentMonth();
     if (documentSnapshot != null) {
-      FullMonthDataModel fullMonthData =
-          FullMonthDataModel.fromDocumentSnapshot(documentSnapshot);
-      isInProgress = false;
-      update();
+      Rx<FullMonthDataModel>? fullMonthData;
+      fullMonthData =
+          FullMonthDataModel.fromDocumentSnapshot(documentSnapshot).obs;
+      isInProgress.value = false;
+      //update();
+
       return fullMonthData;
     }
-    isInProgress = false;
-    update();
+    isInProgress.value = false;
+    // update();
     return null;
   }
 
-  Future<SingleDayDataModel?> getSingleDayData() async {
+  Future<Rx<SingleDayDataModel>?> getSingleDayData() async {
+    isInProgress.value = true;
     final DocumentSnapshot? documentSnapshot =
         await getAllDataForCurrentMonth();
     if (documentSnapshot != null) {
-      SingleDayDataModel TodaysData =
-          SingleDayDataModel.fromDocumentSnapshot(documentSnapshot);
+      Rx<SingleDayDataModel> TodaysData =
+          SingleDayDataModel.fromDocumentSnapshot(documentSnapshot).obs;
+      isInProgress.value = false;
       return TodaysData;
     }
+    isInProgress.value = false;
     return null;
   }
 }

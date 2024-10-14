@@ -104,9 +104,8 @@ class PredefineExpanseListScreen extends StatelessWidget {
                   amountTEController.text.toString().trim(),
                   expanseCauseTEController.text.toString());
               Navigator.pop(context);
-            }, child:
-                GetBuilder<AddExpnseController>(builder: (addExpnseController) {
-              return addExpnseController.inProgress
+            }, child: Obx(() {
+              return Get.find<AddExpnseController>().inProgress.value
                   ? const SizedBox(
                       height: 16,
                       width: 16,

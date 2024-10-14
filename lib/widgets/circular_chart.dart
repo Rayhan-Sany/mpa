@@ -45,6 +45,13 @@ class CircularChart extends StatelessWidget {
                       radius: 30,
                       showTitle: false,
                     ),
+                    PieChartSectionData(
+                      value: 1041,
+                      color: const Color.fromARGB(
+                          255, 238, 83, 83), //Colors.grey.shade400,
+                      radius: 30,
+                      showTitle: false,
+                    ),
                   ],
                 ),
               ),
