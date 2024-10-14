@@ -4,6 +4,7 @@ import 'package:mpa/Data/controller/getDataController.dart';
 import 'package:mpa/presentaion/controllers/add_budget_screen_Controller.dart';
 import 'package:mpa/presentaion/controllers/login_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/sign_up_screen.dart';
+import 'package:mpa/presentaion/controllers/track_expanse_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/controllers/view_expanse_screen_controller.dart';
 
@@ -17,5 +18,6 @@ class InitialBindings extends Bindings {
     Get.lazyPut(() => AddExpnseController(), fenix: true);
     Get.put(GetdataController());
     Get.lazyPut(() => ViewExpanseScreenController(), fenix: true);
+    Get.lazyPut(() => TrackExpanseScreenController(), fenix: true);
   }
 }

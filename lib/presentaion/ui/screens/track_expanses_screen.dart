@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:mpa/Data/controller/getDataController.dart';
 import 'package:mpa/Data/model/full_month_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
+import 'package:mpa/presentaion/controllers/track_expanse_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/ui/screens/view_expanses_screen.dart';
 import 'package:mpa/widgets/bottom_nav_bar.dart';
@@ -16,14 +17,7 @@ class TrackExpansesScreen extends StatefulWidget {
 }
 
 class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
-  Rx<FullMonthDataModel>? monthlyData;
-
-  @override
-  void initState() {
-    super.initState();
-    getMonthlyData();
-    Get.find<UserController>();
-  }
+  final trackExpanseController = Get.find<TrackExpanseScreenController>();
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +107,9 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
                     children: [
                       amountWithTitle(
                           'Budget',
-                          monthlyData?.value.totalBudget.value.toString() ??
+                          trackExpanseController
+                                  .monthlyData?.value.totalBudget.value
+                                  .toString() ??
                               '00',
                           context),
                       const Spacer(),
@@ -121,7 +117,9 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
                       const Spacer(),
                       amountWithTitle(
                           'Expanse',
-                          monthlyData?.value.totalExpanse.value.toString() ??
+                          trackExpanseController
+                                  .monthlyData?.value.totalExpanse.value
+                                  .toString() ??
                               '00',
                           context),
                     ],
@@ -138,8 +136,9 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
   }
 
   String calculateBalance() {
-    int balance = (monthlyData?.value.totalBudget.value ?? 0) -
-        (monthlyData?.value.totalExpanse.value ?? 0);
+    int balance =
+        (trackExpanseController.monthlyData?.value.totalBudget.value ?? 0) -
+            (trackExpanseController.monthlyData?.value.totalExpanse.value ?? 0);
     return balance.toString();
   }
 
@@ -179,9 +178,5 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> getMonthlyData() async {
-    monthlyData = await Get.find<GetdataController>().getFullMonthData();
   }
 }
