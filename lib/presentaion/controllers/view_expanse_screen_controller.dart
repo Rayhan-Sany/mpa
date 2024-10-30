@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:mpa/Data/controller/add_expanse_controller.dart';
-import 'package:mpa/Data/controller/getDataController.dart';
+import 'package:mpa/Data/controller/get_data_controller.dart';
 import 'package:mpa/Data/model/full_month_data_model.dart';
 import 'package:mpa/Data/model/single_day_data_model.dart';
 
@@ -39,7 +39,8 @@ class ViewExpanseScreenController extends GetxController {
       String amount, String expanseCause) async {
     addExpanseIsInProgress.value = true;
 
-    await Get.find<AddExpnseController>().addExpanse(amount, expanseCause);
+    await Get.find<AddExpnseController>()
+        .addExpanse(amount: amount, expanseCause: expanseCause);
     addExpanseIsInProgress.value = false;
   }
 }

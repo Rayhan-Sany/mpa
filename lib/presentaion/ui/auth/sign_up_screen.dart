@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_color.dart';
-import 'package:mpa/presentaion/controllers/sign_up_screen.dart';
-import 'package:mpa/widgets/appPrimaryAppBar.dart';
+import 'package:mpa/presentaion/controllers/sign_up_screen_controller.dart';
+import 'package:mpa/widgets/app_primary_appbar.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -19,7 +19,7 @@ class SignUpScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppPrimaryAppBar(),
+            const AppPrimaryAppBar(isAppbarWithButton: false),
             const SizedBox(height: 50),
             Padding(
                 padding: const EdgeInsets.all(16),
@@ -86,7 +86,7 @@ class SignUpScreen extends StatelessWidget {
                 builder: (signUPScreenController) {
               return Visibility(
                 visible: signUPScreenController.isInProgress == false,
-                replacement: Center(
+                replacement: const Center(
                   child: CircularProgressIndicator(),
                 ),
                 child: ElevatedButton(

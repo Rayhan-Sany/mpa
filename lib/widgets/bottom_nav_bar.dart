@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mpa/presentaion/ui/screens/homscreen.dart';
 import 'package:mpa/presentaion/ui/utils/assets_path.dart';
 
 import '../app/utils/app_color.dart';
@@ -21,12 +23,19 @@ class BottomNavBar extends StatelessWidget {
           )),
       child: Center(
         child: FittedBox(
-          child: Card(
-            color: AppColor.primaryColor,
-            surfaceTintColor: AppColor.primaryColor,
-            elevation: 10,
-            child: SizedBox(
-                height: 48, width: 54, child: Image.asset(AssetsPath.homeIcon)),
+          child: GestureDetector(
+            onTap: () {
+              Get.offAll(() => const HomePage());
+            },
+            child: Card(
+              color: AppColor.primaryColor,
+              surfaceTintColor: AppColor.primaryColor,
+              elevation: 10,
+              child: SizedBox(
+                  height: 48,
+                  width: 54,
+                  child: Image.asset(AssetsPath.homeIcon)),
+            ),
           ),
         ),
       ),

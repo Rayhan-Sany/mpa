@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/presentaion/ui/auth/login_screen.dart';
+import 'package:mpa/presentaion/ui/utils/assets_path.dart';
 
 class SignUPScreenController extends GetxController {
   bool isInProgress = false;
@@ -24,6 +25,7 @@ class SignUPScreenController extends GetxController {
         'name': name,
         'email': email,
         'createdAt': FieldValue.serverTimestamp(),
+        'profileUrl': AssetsPath.defaultProfileImageUrl
       });
       isInProgress = false;
       update();

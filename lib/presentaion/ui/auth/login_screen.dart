@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
 import 'package:mpa/presentaion/controllers/login_screen_controller.dart';
 import 'package:mpa/presentaion/ui/auth/sign_up_screen.dart';
-import 'package:mpa/widgets/appPrimaryAppBar.dart';
+import 'package:mpa/widgets/app_primary_appbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,10 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            AppPrimaryAppBar(),
-            SizedBox(height: 70),
+            const AppPrimaryAppBar(
+              isAppbarWithButton: false,
+            ),
+            const SizedBox(height: 70),
             Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: loginForm(
                     _emailTEController, _passwordTEController, context)),
           ],
@@ -36,8 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Form loginForm(TextEditingController _emailTEController,
-      TextEditingController _passwordTEController, BuildContext context) {
+  Form loginForm(TextEditingController emailTEController,
+      TextEditingController passwordTEController, BuildContext context) {
     return Form(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,13 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 20),
           TextFormField(
-            controller: _emailTEController,
+            controller: emailTEController,
             decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.email_outlined), hintText: "Email"),
           ),
           const SizedBox(height: 20),
           TextFormField(
-            controller: _passwordTEController,
+            controller: passwordTEController,
             onTapOutside: (event) {},
             decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.lock), hintText: "Password"),
@@ -72,17 +74,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    if (_emailTEController.text.trim().isNotEmpty &&
-                        _passwordTEController.text.trim().isNotEmpty)
+                    if (emailTEController.text.trim().isNotEmpty &&
+                        passwordTEController.text.trim().isNotEmpty) {
                       loginScreenController.loginUser(
-                          _emailTEController.text.trim(),
-                          _passwordTEController.text.trim());
+                          emailTEController.text.trim(),
+                          passwordTEController.text.trim());
+                    }
                   },
-                  child: Text("Sign in"),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
+                  child: const Text("Sign in"),
                 ),
               );
             }),
@@ -93,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(
                   width: (MediaQuery.of(context).size.width - 100) / 2,
-                  child: Divider(
+                  child: const Divider(
                     height: 5,
                   )),
               const Padding(
@@ -102,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(
                   width: (MediaQuery.of(context).size.width - 100) / 2,
-                  child: Divider(
+                  child: const Divider(
                     height: 0,
                   )),
             ],
@@ -111,9 +114,9 @@ class _LoginScreenState extends State<LoginScreen> {
               width: double.maxFinite,
               child: ElevatedButton(
                   onPressed: () {
-                    Get.to(SignUpScreen());
+                    Get.to(const SignUpScreen());
                   },
-                  child: Text("Create Account")))
+                  child: const Text("Create Account")))
         ],
       ),
     );

@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/model/user_details_data_model.dart';
+import 'package:mpa/presentaion/controllers/local_storage_controller.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 import 'package:mpa/presentaion/ui/screens/add_budget_screen.dart';
+import 'package:mpa/widgets/app_snackbar.dart';
 
 class UserController extends GetxController {
   bool isNewUserOrNewYear = false;
@@ -9,39 +14,44 @@ class UserController extends GetxController {
   bool isNewDay = false;
   bool todayFlag = true;
   bool currentYearFlag = false;
-  @override
-  void onInit() async {
-    super.onInit();
-    await checkIsNewUserOrNewYear();
-    stayOrMoveToAddBudgetScreen();
-  }
+  RxBool inProgress = false.obs;
+  RxBool isCheckIsNewUserOrNewYearOrNewMonthIsRunSuccessFully = false.obs;
+  static UserDetails? userDetails;
 
-  void stayOrMoveToAddBudgetScreen() {
-    if (isNewUserOrNewYear || isNewMonth) {
-      Get.to(const AddBudgetScreen());
+  Future<UserDetails?> getUserDetails(String? uid) async {
+    inProgress.value = true;
+    if (uid == null) {
+      print("No User So Null Assigning in Userdetails");
+      return null;
     }
+
+    final firestore = FirebaseFirestore.instance;
+    final dbRef = firestore.collection("users").doc(uid);
+    // UserDetails? userDetails;
+    await dbRef.get().then((documentSnapshot) {
+      final Map<String, dynamic> userDetailsMap =
+          documentSnapshot.data() as Map<String, dynamic>;
+      print(userDetailsMap);
+      userDetails = UserDetails.fromMap(userDetailsMap);
+    }, onError: (e) => print("Error completing: $e"));
+
+    inProgress.value = false;
+
+    return userDetails;
   }
 
-  void makeNewYearOrNewUserFalse() {
-    isNewUserOrNewYear = false;
-    update();
+  void setUserDataFromLocalStorage() async {
+    inProgress.value = true;
+    userDetails = await LocalStorageController.getLocalUserDetails();
+    inProgress.value = false;
   }
 
-  void makeNewMonthFalse() {
-    isNewMonth = false;
-    update();
-  }
-
-  void makeNewDayFalse() {
-    isNewDay = false;
-    update();
-  }
-
-  Future<void> checkIsNewUserOrNewYear() async {
+  Future<bool> checkIsNewUserOrNewYearOrNewMonth({required String uid}) async {
+    inProgress.value = true;
     final firestore = FirebaseFirestore.instance;
     final dbRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years");
@@ -59,6 +69,7 @@ class UserController extends GetxController {
             if (currentYearFlag) {
               print(
                   "---------------------------------------------- $currentYearFlag");
+              // ignore: unused_local_variable
               for (var docSnapshot in querySnapshot.docs) {
                 Map<String, dynamic> currentYearData =
                     querySnapshot.docs.last.data();
@@ -96,13 +107,38 @@ class UserController extends GetxController {
         },
         onError: (e) => print("Error completing: $e"),
       );
+    } on SocketException catch (e) {
+      AppSnackbar.showAppSnackbar(
+          title: "No Internet", subtitle: "Somthing Wrong $e");
     } catch (e) {
       if (e.toString() == "Bad state: No element") {
-        if (currentYearFlag == false) isNewUserOrNewYear = true;
-        update();
+        print("${e.toString}-----------------");
+        if (currentYearFlag == false) {
+          Get.to(() => const AddBudgetScreen());
+          isNewUserOrNewYear = true;
+          update();
+        }
 
         print(e.toString() + isNewUserOrNewYear.toString());
       }
     }
+    inProgress.value = false;
+    isCheckIsNewUserOrNewYearOrNewMonthIsRunSuccessFully.value = true;
+    return isCheckIsNewUserOrNewYearOrNewMonthIsRunSuccessFully.value;
+  }
+
+  void makeNewYearOrNewUserFalse() {
+    isNewUserOrNewYear = false;
+    update();
+  }
+
+  void makeNewMonthFalse() {
+    isNewMonth = false;
+    update();
+  }
+
+  void makeNewDayFalse() {
+    isNewDay = false;
+    update();
   }
 }

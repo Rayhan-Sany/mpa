@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/model/user_details_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
+import 'package:mpa/presentaion/controllers/local_storage_controller.dart';
+import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,11 +25,11 @@ class LoginScreenController extends GetxController {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
 
-      String? token = await userCredential.user?.getIdToken();
-      if (token != null) {
-        final storage = await SharedPreferences.getInstance();
-        await storage.setString('token', token);
-      }
+      // String? token = await userCredential.user?.getIdToken();
+      UserDetails? userDetails = await Get.find<UserController>()
+          .getUserDetails(userCredential.user?.uid);
+
+      LocalStorageController.storeUserDetails(userDetails);
 
       isInProgress = false;
       update();
@@ -62,10 +65,11 @@ class LoginScreenController extends GetxController {
 
   Future<void> isAlreadyLoggedIn() async {
     final storage = await SharedPreferences.getInstance();
-    String? token = storage.getString('token');
+    String? uid = storage.getString('uid');
 
-    print(token);
-    if (token != null) {
+    print("------------------------$uid");
+    if (uid != null) {
+      Get.find<UserController>().setUserDataFromLocalStorage();
       isLoggedIn = true;
       update();
     }

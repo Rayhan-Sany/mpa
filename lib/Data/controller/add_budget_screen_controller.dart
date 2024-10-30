@@ -3,42 +3,53 @@ import 'package:get/get.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 import 'package:mpa/presentaion/models/monthly_data_model.dart';
+import 'package:mpa/widgets/app_snackbar.dart';
 
 class AddBudgetScreenController extends GetxController {
   final userController = Get.find<UserController>();
+  RxBool isInProgress = false.obs;
 
-  void addBudget({required String budget, required String budgetName}) {
+  Future<void> addBudget(
+      {required String budget, required String budgetName}) async {
+    isInProgress.value = true;
+    String uid = UserController.userDetails!.uid;
     if (userController.isNewUserOrNewYear) {
-      addBudgetForNewUserOrNewYear(
+      await addBudgetForNewUserOrNewYear(
           year: CurrentDateTimeReturnModel.year,
           month: CurrentDateTimeReturnModel.month,
           day: CurrentDateTimeReturnModel.day,
           budget: budget,
-          budgetName: budgetName);
+          budgetName: budgetName,
+          uid: uid);
     } else if (userController.isNewMonth) {
-      addBudgetForNewMonth(
+      await addBudgetForNewMonth(
           year: CurrentDateTimeReturnModel.year,
           month: CurrentDateTimeReturnModel.month,
           day: CurrentDateTimeReturnModel.day,
           budget: budget,
-          budgetName: budgetName);
+          budgetName: budgetName,
+          uid: uid);
     } else if (userController.isNewDay) {
-      addBudgetForNewDay(
+      await addBudgetForNewDay(
           year: CurrentDateTimeReturnModel.year,
           month: CurrentDateTimeReturnModel.month,
           day: CurrentDateTimeReturnModel.day,
           budget: budget,
-          budgetName: budgetName);
+          budgetName: budgetName,
+          uid: uid);
     } else if (userController.todayFlag) {
-      addBudgetForToday(
+      await addBudgetForToday(
           year: CurrentDateTimeReturnModel.year,
           month: CurrentDateTimeReturnModel.month,
           day: CurrentDateTimeReturnModel.day,
           budget: budget,
-          budgetName: budgetName);
+          budgetName: budgetName,
+          uid: uid);
     } else {
       print("Error->Somthing Wrong");
     }
+
+    isInProgress.value = false;
   }
 
   Future<void> addBudgetForToday(
@@ -46,12 +57,13 @@ class AddBudgetScreenController extends GetxController {
       required String month,
       required String day,
       required String budget,
-      required String budgetName}) async {
+      required String budgetName,
+      required String uid}) async {
     MonthlyDataModel? monthlyData;
     final firestore = FirebaseFirestore.instance;
     final docRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years")
@@ -62,7 +74,7 @@ class AddBudgetScreenController extends GetxController {
         monthlyData = MonthlyDataModel.fromDocumentSnapshot(doc);
         print(monthlyData?.dayList);
       },
-      onError: (e) => print("Error getting document: $e"),
+      onError: (e) => print("Somthing Wrong => $e"),
     );
     Map<String, dynamic> todayBudget = {
       "BudgetName": budgetName,
@@ -86,7 +98,16 @@ class AddBudgetScreenController extends GetxController {
       "Months": [
         {month: monthlyData?.dayList}
       ]
-    });
+    }).then(
+      (value) {
+        AppSnackbar.showAppSnackbar(
+            title: "Successfully Added", subtitle: "Budget Added Successfully");
+      },
+      onError: (e) => AppSnackbar.showAppSnackbar(
+          title: "Faild",
+          subtitle: "Budget Added Failed : $e",
+          isErrorSnak: true),
+    );
 
     print("--------------------------------Today Budget Added");
   }
@@ -96,12 +117,13 @@ class AddBudgetScreenController extends GetxController {
       required String month,
       required String day,
       required String budget,
-      required String budgetName}) async {
+      required String budgetName,
+      required String uid}) async {
     MonthlyDataModel? monthlyData;
     final firestore = FirebaseFirestore.instance;
     final docRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years")
@@ -141,7 +163,14 @@ class AddBudgetScreenController extends GetxController {
       "Months": [
         {month: monthlyData?.dayList}
       ]
-    });
+    }).then((value) {
+      AppSnackbar.showAppSnackbar(
+          title: "Successfully Added", subtitle: "Budget Added Successfully");
+    },
+        onError: (e) => AppSnackbar.showAppSnackbar(
+            title: "Faild",
+            subtitle: "Budget Added Failed : $e",
+            isErrorSnak: true));
 
     print("--------------------------------Single day Budget Add");
     userController.makeNewDayFalse();
@@ -152,11 +181,12 @@ class AddBudgetScreenController extends GetxController {
       required String month,
       required String day,
       required String budget,
-      required String budgetName}) async {
+      required String budgetName,
+      required String uid}) async {
     final firestore = FirebaseFirestore.instance;
     final dbRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years")
@@ -182,7 +212,14 @@ class AddBudgetScreenController extends GetxController {
           ]
         }
       ]
-    });
+    }).then((value) {
+      AppSnackbar.showAppSnackbar(
+          title: "Successfully Added", subtitle: "Budget Added Successfully");
+    },
+        onError: (e) => AppSnackbar.showAppSnackbar(
+            title: "Faild",
+            subtitle: "Budget Added Failed : $e",
+            isErrorSnak: true));
 
     print("--------------------------------Brand New Budget Add");
     userController.makeNewYearOrNewUserFalse();
@@ -193,12 +230,13 @@ class AddBudgetScreenController extends GetxController {
       required String month,
       required String day,
       required String budget,
-      required String budgetName}) async {
+      required String budgetName,
+      required String uid}) async {
     final firestore = FirebaseFirestore.instance;
 
     final dbRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years")
@@ -224,7 +262,14 @@ class AddBudgetScreenController extends GetxController {
 
     dbRef.set({
       "Months": FieldValue.arrayUnion([newMonth])
-    }, SetOptions(merge: true));
+    }, SetOptions(merge: true)).then((value) {
+      AppSnackbar.showAppSnackbar(
+          title: "Successfully Added", subtitle: "Budget Added Successfully");
+    },
+        onError: (e) => AppSnackbar.showAppSnackbar(
+            title: "Faild",
+            subtitle: "Budget Added Failed : $e",
+            isErrorSnak: true));
 
     print("-------------------------------- New Month Budget Add");
     userController.makeNewMonthFalse();

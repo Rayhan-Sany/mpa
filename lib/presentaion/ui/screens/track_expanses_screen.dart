@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mpa/Data/controller/getDataController.dart';
-import 'package:mpa/Data/model/full_month_data_model.dart';
+import 'package:mpa/Data/controller/get_data_controller.dart';
+import 'package:mpa/Data/model/weekly_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/presentaion/controllers/track_expanse_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
+import 'package:mpa/presentaion/controllers/weekly_data_controller.dart';
 import 'package:mpa/presentaion/ui/screens/view_expanses_screen.dart';
 import 'package:mpa/widgets/bottom_nav_bar.dart';
 import 'package:mpa/widgets/circular_chart.dart';
@@ -18,51 +20,80 @@ class TrackExpansesScreen extends StatefulWidget {
 
 class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
   final trackExpanseController = Get.find<TrackExpanseScreenController>();
+  final weeklyDataController = Get.find<WeeklyDataController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: [
-        budgetTitleBar(context),
-        const SizedBox(height: 50),
-        const CircularChart(),
-        const SizedBox(
-          height: 26,
+        body: RefreshIndicator(
+      onRefresh: () => onRefreshed(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            children: [
+              budgetTitleBar(context),
+              const SizedBox(height: 50),
+              showWeeklyExpanseChart(),
+              const SizedBox(
+                height: 26,
+              ),
+              ...buildPieChartExplainers(),
+              const Spacer(),
+              Row(
+                children: [
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Get.to(() => const ViewExpanses());
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primaryColor,
+                            foregroundColor: AppColor.textColor,
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        child: const Text("View Expanses",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500))),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+              const BottomNavBar()
+            ],
+          ),
         ),
-        pieChartExplainer(Colors.greenAccent, 'First Week'),
-        pieChartExplainer(AppColor.primaryColor, '2nd Week'),
-        pieChartExplainer(const Color(0xffffb200), '3rd Week'),
-        pieChartExplainer(Color.fromARGB(255, 238, 83, 83), 'Last Week'),
-        const Spacer(),
-        Row(
-          children: [
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(() => const ViewExpanses());
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.primaryColor,
-                      foregroundColor: AppColor.textColor,
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
-                  child: const Text("View Expanses",
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500))),
-            ),
-            const Spacer(),
-          ],
-        ),
-        const BottomNavBar()
-      ],
+      ),
     ));
   }
 
-  Widget pieChartExplainer(Color color, String title) {
+  List<Widget> buildPieChartExplainers() {
+    return [
+      pieChartExplainer(Colors.greenAccent, 'First Week',
+          weeklyDataController.firstWeekExpancesData),
+      pieChartExplainer(AppColor.primaryColor, '2nd Week',
+          weeklyDataController.secondWeekExpancesData),
+      pieChartExplainer(const Color(0xffffb200), '3rd Week',
+          weeklyDataController.thirdWeekExpancesData),
+      pieChartExplainer(const Color.fromARGB(255, 238, 83, 83), 'Last Week',
+          weeklyDataController.lastWeekExpancesData),
+    ];
+  }
+
+  Widget showWeeklyExpanseChart() => const CircularChart();
+
+  Future<void> onRefreshed() async {
+    await trackExpanseController.fetchFullMonthData();
+    weeklyDataController.weeklyData(
+        Get.find<TrackExpanseScreenController>().monthlyData?.value);
+  }
+
+  Widget pieChartExplainer(
+      Color color, String title, Rx<WeeklyDataModel>? expanseData) {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: Row(
@@ -77,7 +108,9 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
             child: ColoredBox(color: color),
           ),
           const SizedBox(width: 10),
-          Text(title),
+          Text("$title Exapanse"),
+          const SizedBox(width: 10),
+          Obx(() => Text("${expanseData?.value.totalExpanse ?? 0}")),
           const Expanded(
             flex: 6,
             child: SizedBox(),
@@ -159,7 +192,8 @@ class _TrackExpansesScreenState extends State<TrackExpansesScreen> {
                 fontWeight: FontWeight.bold),
           ),
           Flexible(
-              child: Get.find<GetdataController>().isInProgress.value
+              child: Get.find<GetdataController>().isInProgress.value ||
+                      Get.find<UserController>().inProgress.value
                   ? const CircularProgressIndicator(
                       color: AppColor.textColor,
                     )

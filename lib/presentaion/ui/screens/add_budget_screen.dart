@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mpa/Data/controller/add_budget_screen_controller.dart';
+import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
-import 'package:mpa/presentaion/controllers/add_budget_screen_Controller.dart';
-import 'package:mpa/widgets/appPrimaryAppBar.dart';
+import 'package:mpa/widgets/app_primary_appbar.dart';
 import 'package:mpa/widgets/bottom_nav_bar.dart';
 
 class AddBudgetScreen extends StatelessWidget {
@@ -19,11 +20,13 @@ class AddBudgetScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppPrimaryAppBar(),
+          const AppPrimaryAppBar(
+            isAppbarWithButton: false,
+          ),
           Expanded(
             // Ensure that this column doesn't overflow
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -32,18 +35,18 @@ class AddBudgetScreen extends StatelessWidget {
                       "First Add Your Budget For This Month",
                       style: AppFontStyles.playfairDisplay700S30,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: budgetTEController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           hintText: "Budget",
                           contentPadding: EdgeInsets.only(left: 12)),
                       keyboardType: TextInputType.number,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: budgetNameTEController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           hintText: "Budget Name",
                           contentPadding: EdgeInsets.only(left: 12)),
                     ),
@@ -54,40 +57,45 @@ class AddBudgetScreen extends StatelessWidget {
                           children: [
                             suggestBudgetAmountRow(budgetTEController,
                                 valu1: "2000", valu2: "2500", valu3: "3000"),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             suggestBudgetAmountRow(budgetTEController,
                                 valu1: "4000", valu2: "4500", valu3: "5000")
                           ],
                         )),
-                    SizedBox(height: 50),
+                    const SizedBox(height: 50),
                     SizedBox(
                       width: double.maxFinite,
-                      child: ElevatedButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          if (budgetTEController.text
-                              .toString()
-                              .trim()
-                              .isNotEmpty) {
-                            onPressAddBudgetButton(
-                                budget:
-                                    budgetTEController.text.toString().trim(),
-                                budgetName:
-                                    budgetNameTEController.text.toString());
-                          } else {
-                            print("Budget Can't Be Empty");
-                          }
-                        },
-                      ),
+                      child: addBudgetButton(
+                          budgetTEController, budgetNameTEController),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          BottomNavBar(),
+          const BottomNavBar(),
         ],
       ),
+    );
+  }
+
+  Widget addBudgetButton(TextEditingController budgetTEController,
+      TextEditingController budgetNameTEController) {
+    return ElevatedButton(
+      child: Obx(
+        () => Get.find<AddBudgetScreenController>().isInProgress.value
+            ? const CircularProgressIndicator(color: AppColor.textColor)
+            : const Text("Add"),
+      ),
+      onPressed: () {
+        if (budgetTEController.text.toString().trim().isNotEmpty) {
+          onPressAddBudgetButton(
+              budget: budgetTEController.text.toString().trim(),
+              budgetName: budgetNameTEController.text.toString());
+        } else {
+          print("Budget Can't Be Empty");
+        }
+      },
     );
   }
 
@@ -112,9 +120,11 @@ class AddBudgetScreen extends StatelessWidget {
         child: Text(value),
       );
 
-  void onPressAddBudgetButton(
-      {required String budget, String budgetName = 'UnKnown'}) {
+  Future<void> onPressAddBudgetButton(
+      {required String budget, String budgetName = 'UnKnown'}) async {
     final addBudgetController = Get.find<AddBudgetScreenController>();
-    addBudgetController.addBudget(budget: budget, budgetName: budgetName);
+    await addBudgetController.addBudget(budget: budget, budgetName: budgetName);
+
+    Get.back();
   }
 }

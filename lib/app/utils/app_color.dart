@@ -5,4 +5,5 @@ class AppColor {
   static const textColor = Colors.white70;
   static const successColor = Colors.green;
   static const errorColor = Colors.red;
+  static const blackColor = Colors.black;
 }

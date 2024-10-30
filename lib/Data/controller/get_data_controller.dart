@@ -2,16 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:mpa/Data/model/full_month_data_model.dart';
 import 'package:mpa/Data/model/single_day_data_model.dart';
+import 'package:mpa/presentaion/controllers/user_controller.dart';
 import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
+import 'package:mpa/widgets/app_snackbar.dart';
 
 class GetdataController extends GetxController {
   RxBool isInProgress = false.obs;
   Future<DocumentSnapshot?> getAllDataForCurrentMonth() async {
+    String uid = UserController.userDetails!.uid;
     DocumentSnapshot? docSnapshot;
     final firestore = FirebaseFirestore.instance;
     final docRef = firestore
         .collection("users")
-        .doc("xZE01HNdVzgOU0byjVSPMLCWDFR2")
+        .doc(uid)
         .collection("ExpanseData")
         .doc("ExpanseHistory")
         .collection("Years")
@@ -21,7 +24,8 @@ class GetdataController extends GetxController {
       (DocumentSnapshot doc) {
         docSnapshot = doc;
       },
-      onError: (e) => print("Error getting document: $e"),
+      onError: (e) => AppSnackbar.showAppSnackbar(
+          title: "Failed", subtitle: "Data fetch failed :$e"),
     );
 
     return docSnapshot;
