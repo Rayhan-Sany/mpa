@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:mpa/Data/model/full_month_data_model.dart';
 
 import 'package:mpa/Data/model/weekly_data_model.dart';
+import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
+import 'package:mpa/widgets/app_snackbar.dart';
 
 class WeeklyDataController extends GetxController {
   Rx<WeeklyDataModel>? firstWeekExpancesData =
@@ -21,6 +23,43 @@ class WeeklyDataController extends GetxController {
       for (int i = 1; i <= 4; i++) {
         WeeklyDataModel weeklyData =
             WeeklyDataModel.fromMonthlyData(monthlyData, i);
+        if (CurrentDateTimeReturnModel.currentWeekNumber() == i) {
+          double avgExpansePerWeekWithRespectToBudget =
+              monthlyData.totalExpanse.value / 4;
+          if (i == 1) {
+            if (firstWeekExpancesData!.value.totalExpanse >
+                avgExpansePerWeekWithRespectToBudget) {
+              AppSnackbar.showAppSnackbar(
+                  title: "Limit Exceeded ",
+                  subtitle: "1s Week Expanse Excedded Avarge Limit",
+                  isErrorSnak: true);
+            }
+          } else if (i == 2) {
+            if (secondWeekExpancesData!.value.totalExpanse >
+                avgExpansePerWeekWithRespectToBudget) {
+              AppSnackbar.showAppSnackbar(
+                  title: "Limit Exceeded ",
+                  subtitle: "2nd Week Expanse Excedded Avarge Limit",
+                  isErrorSnak: true);
+            }
+          } else if (i == 3) {
+            if (secondWeekExpancesData!.value.totalExpanse >
+                avgExpansePerWeekWithRespectToBudget) {
+              AppSnackbar.showAppSnackbar(
+                  title: "Limit Exceeded ",
+                  subtitle: "3rd Week Expanse Excedded Avarge Limit",
+                  isErrorSnak: true);
+            }
+          } else {
+            if (secondWeekExpancesData!.value.totalExpanse >
+                avgExpansePerWeekWithRespectToBudget) {
+              AppSnackbar.showAppSnackbar(
+                  title: "Limit Exceeded ",
+                  subtitle: "last Week Expanse Excedded Avarge Limit",
+                  isErrorSnak: true);
+            }
+          }
+        }
         switch (i) {
           case 1:
             firstWeekExpancesData?.value = weeklyData;

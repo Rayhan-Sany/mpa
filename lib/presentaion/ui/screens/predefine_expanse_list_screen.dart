@@ -150,11 +150,12 @@ class PredefineExpanseListScreen extends StatelessWidget {
             onTap: () {
               addExpanseAlertDialog(
                   predefineExpanseListController.predefineExpanseList[index]
-                      ["name"],
+                          ["ExpanseCause"] ??
+                      "N/A",
                   predefineExpanseListController.predefineExpanseList[index]
-                      ["Cost"],
+                      ["ExpanseAmount"],
                   predefineExpanseListController.predefineExpanseList[index]
-                      ["imageUrl"],
+                      ["ExpansePhotoUrl"],
                   context);
             },
             leading: SizedBox(

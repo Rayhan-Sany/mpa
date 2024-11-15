@@ -96,6 +96,7 @@ class UserController extends GetxController {
                 bool isSameMonth = currentMonth.keys.last.toString() ==
                     CurrentDateTimeReturnModel.month;
                 if (!isSameMonth) {
+                  Get.to(() => const AddBudgetScreen());
                   isNewMonth = true;
                   update();
                 }

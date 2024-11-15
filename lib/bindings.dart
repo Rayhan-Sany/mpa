@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:mpa/Data/controller/add_expanse_controller.dart';
 import 'package:mpa/Data/controller/get_data_controller.dart';
+import 'package:mpa/Data/controller/notes_controller.dart';
+import 'package:mpa/presentaion/controllers/education_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/predefinelist_screen_controller.dart';
 import 'package:mpa/presentaion/controllers/local_storage_controller.dart';
 import 'package:mpa/presentaion/controllers/login_screen_controller.dart';
@@ -30,5 +32,7 @@ class InitialBindings extends Bindings {
     Get.lazyPut(() => UpdateProfileController(), fenix: true);
     Get.lazyPut(() => WeeklyDataController(), fenix: true);
     Get.lazyPut(() => PredefineListScreenController(), fenix: true);
+    Get.lazyPut(() => NotesController(), fenix: true);
+    Get.lazyPut(() => EducationScreenController(), fenix: true);
   }
 }

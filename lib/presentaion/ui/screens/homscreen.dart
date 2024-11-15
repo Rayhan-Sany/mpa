@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/features_list.dart';
+import 'package:mpa/presentaion/ui/screens/education_screen.dart';
+import 'package:mpa/presentaion/ui/screens/notes_screen.dart';
 import 'package:mpa/presentaion/ui/screens/track_expanses_screen.dart';
 import 'package:mpa/presentaion/ui/screens/youtube_player_screen.dart';
 import 'package:mpa/widgets/app_primary_appbar.dart';
@@ -63,8 +65,15 @@ class _HomePageState extends State<HomePage> {
         switch (index) {
           case 0:
             Get.to(() => const TrackExpansesScreen());
+            break;
+          case 1:
+            Get.to(() => const EducationScreen());
+            break;
           case 2:
             Get.to(const YoutubePlayerScreen());
+            break;
+          case 3:
+            Get.to(() => const NotesScreen());
         }
       },
       child: FittedBox(
