@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/Data/controller/notes_controller.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
+import 'package:mpa/presentaion/models/current_date_time_return_model.dart';
 import 'package:mpa/widgets/app_primary_appbar.dart';
+import 'package:mpa/widgets/app_snackbar.dart';
 import 'package:mpa/widgets/bottom_nav_bar.dart';
 
 class NotesScreen extends StatelessWidget {
-  final String userId =
-      "QGUG2GcEa1f4up03egP8OExX9sl1"; // Replace with the actual user ID
+  // Replace with the actual user ID
 
   const NotesScreen({super.key});
 
@@ -44,7 +44,7 @@ class NotesScreen extends StatelessWidget {
   StreamBuilder<List<Map<String, dynamic>>> buildNotesList(
       NotesController notesController) {
     return StreamBuilder<List<Map<String, dynamic>>>(
-      stream: notesController.getNotes(userId),
+      stream: notesController.getNotes(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -61,21 +61,43 @@ class NotesScreen extends StatelessWidget {
           itemCount: notes.length,
           itemBuilder: (context, index) {
             final note = notes[index];
-
             return ListTile(
-              title: Text(
-                note['title'] ?? 'No Title',
-                style: AppFontStyles.playfairDisplay600S20,
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    note['title'] ?? 'No Title',
+                    style: AppFontStyles.playfairDisplay600S20,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Spacer(),
+                  Text(
+                    note['timestamp'] != null
+                        ? CurrentDateTimeReturnModel.timeStampToDate(
+                            note["timestamp"])
+                        : '',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  )
+                ],
+              ),
+              subtitle: Text(
+                note['content'] ?? 'No Content',
+                style: AppFontStyles.playfairDisplay400S15,
                 overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Text(note['content'] ?? 'No Content',
-                  style: AppFontStyles.playfairDisplay400S15,
-                  overflow: TextOverflow.ellipsis),
-              trailing: Text(
-                note['timestamp'] != null
-                    ? (note['timestamp'] as Timestamp).toDate().toString()
-                    : '',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'delete') {
+                    _confirmDelete(context, notesController, note['id']);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text('Delete'),
+                  ),
+                ],
+                icon: const Icon(Icons.more_vert),
               ),
             );
           },
@@ -84,7 +106,40 @@ class NotesScreen extends StatelessWidget {
     );
   }
 
-  // Show dialog to add a new note
+  void _confirmDelete(
+    BuildContext context,
+    NotesController notesController,
+    String noteId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this note?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await notesController.deleteNote(
+                noteId: noteId,
+              );
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                AppSnackbar.showAppSnackbar(
+                    title: "Success", subtitle: "Note deleted successfully");
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAddNoteDialog(BuildContext context) {
     final titleController = TextEditingController();
     final contentController = TextEditingController();
@@ -125,7 +180,6 @@ class NotesScreen extends StatelessWidget {
 
               if (title.isNotEmpty && content.isNotEmpty) {
                 await notesController.uploadNote(
-                  userId: userId,
                   title: title,
                   content: content,
                 );

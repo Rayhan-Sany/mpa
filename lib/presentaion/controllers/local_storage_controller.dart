@@ -36,4 +36,10 @@ class LocalStorageController {
         profilePhotoUrl: photoUrl ?? "");
     return userDetails;
   }
+
+  static Future<String> getUid() async {
+    final storage = await SharedPreferences.getInstance();
+    String? uid = storage.getString("uid");
+    return uid ?? "";
+  }
 }

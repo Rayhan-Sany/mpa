@@ -1,12 +1,10 @@
-import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html;
 import 'package:flutter/material.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
 import 'package:mpa/presentaion/controllers/education_screen_controller.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
+import 'package:mpa/presentaion/ui/screens/pdf_viewer_screen.dart';
 import 'package:mpa/presentaion/ui/utils/assets_path.dart';
 import 'package:mpa/widgets/app_primary_appbar.dart';
 
@@ -199,15 +197,23 @@ class _EducationScreenState extends State<EducationScreen> {
   }
 
   Future<void> onTap(int index) async {
-    educationScreenController.pathWithIndicator.value +=
-        " > ${educationScreenController.pathContent[index]["name"]}";
-    educationScreenController.pathStack.add(
-        "${educationScreenController.pathStack.last}/${educationScreenController.pathContent[index]["name"]}");
-    educationScreenController.currentPath.value =
-        educationScreenController.pathStack.last;
-    await educationScreenController.getEducationFileAndFolders(
-        educationScreenController.currentPath.value);
-    print(educationScreenController.currentPath);
+    if (educationScreenController.pathContent[index]["isFolder"]) {
+      educationScreenController.pathWithIndicator.value +=
+          " > ${educationScreenController.pathContent[index]["name"]}";
+      educationScreenController.pathStack.add(
+          "${educationScreenController.pathStack.last}/${educationScreenController.pathContent[index]["name"]}");
+      educationScreenController.currentPath.value =
+          educationScreenController.pathStack.last;
+      await educationScreenController.getEducationFileAndFolders(
+          educationScreenController.currentPath.value);
+      print(educationScreenController.currentPath);
+    } else {
+      Get.to(() => PdfViewerScreen(
+            firebasePath:
+                "${educationScreenController.pathStack.last}/${educationScreenController.pathContent[index]["name"]}",
+            pdfName: "${educationScreenController.pathContent[index]["name"]}",
+          ));
+    }
   }
 
   Future<void> handleDelete(int index) async {

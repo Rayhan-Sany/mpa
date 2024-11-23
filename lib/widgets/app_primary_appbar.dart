@@ -16,6 +16,7 @@ class AppPrimaryAppBar extends StatelessWidget {
             borderRadius: BorderRadius.only(
                 bottomRight: Radius.circular(25),
                 bottomLeft: Radius.circular(25))),
+        clipBehavior: Clip.hardEdge,
         child: Center(
           child: Column(
             children: [

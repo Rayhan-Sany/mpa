@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mpa/app/utils/features_list.dart';
 import 'package:mpa/presentaion/ui/screens/education_screen.dart';
+import 'package:mpa/presentaion/ui/screens/entertainment_screen.dart';
 import 'package:mpa/presentaion/ui/screens/notes_screen.dart';
 import 'package:mpa/presentaion/ui/screens/track_expanses_screen.dart';
 import 'package:mpa/presentaion/ui/screens/youtube_player_screen.dart';
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             Get.to(() => const EducationScreen());
             break;
           case 2:
-            Get.to(const YoutubePlayerScreen());
+            Get.to(const EntertainmentScreen());
             break;
           case 3:
             Get.to(() => const NotesScreen());
@@ -82,19 +83,4 @@ class _HomePageState extends State<HomePage> {
       )),
     );
   }
-
-  // Future<void> moveToTrackExpanseScreen() async {
-  //   UserController userController = Get.find<UserController>();
-  //   final uid = UserController.userDetails?.uid;
-  //   if (uid == null) {
-  //     print("uid can not be null must need for goto next screen");
-  //     return;
-  //   }
-  //   await userController.checkIsNewUserOrNewYearOrNewMonth(uid: uid);
-  //   if (userController.isNewUserOrNewYear || userController.isNewMonth) {
-  //     Get.to(() => const AddBudgetScreen());
-  //   } else {
-  //     Get.to(() => const TrackExpansesScreen());
-  //   }
-  // }
 }

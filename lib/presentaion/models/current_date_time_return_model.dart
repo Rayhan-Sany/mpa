@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CurrentDateTimeReturnModel {
   static final String year = DateTime.now().year.toString();
   static final String month = currentMonthName();
@@ -33,5 +35,11 @@ class CurrentDateTimeReturnModel {
     } else {
       return 4;
     }
+  }
+
+  static timeStampToDate(Timestamp timeStamp) {
+    String date =
+        "${timeStamp.toDate().day}-${timeStamp.toDate().month}-${timeStamp.toDate().year}";
+    return date;
   }
 }

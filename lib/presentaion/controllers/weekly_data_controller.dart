@@ -43,7 +43,7 @@ class WeeklyDataController extends GetxController {
                   isErrorSnak: true);
             }
           } else if (i == 3) {
-            if (secondWeekExpancesData!.value.totalExpanse >
+            if (thirdWeekExpancesData!.value.totalExpanse >
                 avgExpansePerWeekWithRespectToBudget) {
               AppSnackbar.showAppSnackbar(
                   title: "Limit Exceeded ",
@@ -51,7 +51,7 @@ class WeeklyDataController extends GetxController {
                   isErrorSnak: true);
             }
           } else {
-            if (secondWeekExpancesData!.value.totalExpanse >
+            if (lastWeekExpancesData!.value.totalExpanse >
                 avgExpansePerWeekWithRespectToBudget) {
               AppSnackbar.showAppSnackbar(
                   title: "Limit Exceeded ",

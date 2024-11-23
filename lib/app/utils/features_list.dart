@@ -7,4 +7,9 @@ class FeatureLIst {
     {"Name": "Entertainment", "Logo": AssetsPath.entertainmentLogo},
     {"Name": "Notes", "Logo": AssetsPath.notesLogo},
   ];
+
+  static List<Map<String, String>> entertainmentFeaturesList = [
+    {"Name": "Multimedia", "Logo": AssetsPath.entertainmentLogo},
+    {"Name": "Story Books", "Logo": AssetsPath.notesLogo}
+  ];
 }

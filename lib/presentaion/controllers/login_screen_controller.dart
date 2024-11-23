@@ -4,6 +4,7 @@ import 'package:mpa/Data/model/user_details_data_model.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/presentaion/controllers/local_storage_controller.dart';
 import 'package:mpa/presentaion/controllers/user_controller.dart';
+import 'package:mpa/presentaion/controllers/user_credential.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,9 +14,9 @@ class LoginScreenController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
-  onInit() {
+  onInit() async {
     super.onInit();
-    isAlreadyLoggedIn();
+    await isAlreadyLoggedIn();
   }
 
   Future<void> loginUser(String email, String password) async {
@@ -73,5 +74,6 @@ class LoginScreenController extends GetxController {
       isLoggedIn = true;
       update();
     }
+    UserCredentials.getUserCredentialFromLocalStorage();
   }
 }
