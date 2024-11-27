@@ -5,6 +5,7 @@ import 'package:mpa/bindings.dart';
 import 'package:mpa/presentaion/controllers/login_screen_controller.dart';
 import 'package:mpa/presentaion/ui/auth/login_screen.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
+import 'package:mpa/presentaion/ui/screens/splash_screen.dart';
 
 class MyPersonalAssistant extends StatelessWidget {
   const MyPersonalAssistant({super.key});
@@ -19,9 +20,7 @@ class MyPersonalAssistant extends StatelessWidget {
       initialBinding: InitialBindings(),
       theme: AppThemeData.light(),
       home: GetBuilder<LoginScreenController>(builder: (loginScreenController) {
-        return loginScreenController.isLoggedIn
-            ? const HomePage()
-            : const LoginScreen();
+        return const SplashScreen(); //HomePage()
       }),
     );
   }

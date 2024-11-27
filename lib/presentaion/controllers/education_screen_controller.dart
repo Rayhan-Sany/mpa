@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mpa/presentaion/controllers/user_credential.dart';
 import 'package:mpa/presentaion/ui/utils/assets_path.dart';
 import 'package:mpa/widgets/app_snackbar.dart';
 
@@ -16,6 +17,7 @@ class EducationScreenController extends GetxController {
   Rx<File>? file;
   RxBool isFileSelected = false.obs;
   RxBool isFileUploadingIsInProgress = false.obs;
+  String userId = UserCredentials.userDetails?.uid ?? '';
   @override
   void onInit() async {
     super.onInit();
@@ -25,7 +27,7 @@ class EducationScreenController extends GetxController {
   Future<void> uploadFile(String fullPath) async {
     isFileUploadingIsInProgress.value = true;
     try {
-      final fileRef = FirebaseStorage.instance.ref(fullPath);
+      final fileRef = FirebaseStorage.instance.ref("$userId/$fullPath");
 
       if (file?.value != null) {
         final readyFile = file!.value.readAsBytesSync();
@@ -60,7 +62,7 @@ class EducationScreenController extends GetxController {
 
   Future<void> deleteFolder({required folderPath, int? index}) async {
     try {
-      final folderRef = FirebaseStorage.instance.ref(folderPath);
+      final folderRef = FirebaseStorage.instance.ref("$userId/$folderPath");
 
       final ListResult result = await folderRef.listAll();
 
@@ -89,7 +91,7 @@ class EducationScreenController extends GetxController {
 
   Future<void> deleteFile(String filePath, int index) async {
     try {
-      final fileRef = FirebaseStorage.instance.ref(filePath);
+      final fileRef = FirebaseStorage.instance.ref("$userId/$filePath");
 
       fileRef.delete().onError((e, stackTrace) {
         AppSnackbar.showAppSnackbar(
@@ -109,7 +111,7 @@ class EducationScreenController extends GetxController {
 
   Future<void> getEducationFileAndFolders(String path) async {
     isInProgress.value = true;
-    final storageRef = FirebaseStorage.instance.ref(path);
+    final storageRef = FirebaseStorage.instance.ref("$userId/$path");
     pathContent.clear();
     await storageRef.list().then((listResult) {
       for (var item in listResult.prefixes) {
@@ -139,7 +141,7 @@ class EducationScreenController extends GetxController {
   Future<void> createEmptyFolder(String folderName) async {
     isInProgress.value = true;
     final storageRef = FirebaseStorage.instance
-        .ref(currentPath.value)
+        .ref("$userId/${currentPath.value}")
         .child("$folderName/placeholder.png");
 
     bool isAlreadyFolderNameExist = false;

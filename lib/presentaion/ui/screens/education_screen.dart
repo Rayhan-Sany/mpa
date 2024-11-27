@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:mpa/app/utils/app_color.dart';
 import 'package:mpa/app/utils/app_font_styles.dart';
 import 'package:mpa/presentaion/controllers/education_screen_controller.dart';
+import 'package:mpa/presentaion/controllers/user_credential.dart';
 import 'package:mpa/presentaion/ui/screens/homscreen.dart';
 import 'package:mpa/presentaion/ui/screens/pdf_viewer_screen.dart';
 import 'package:mpa/presentaion/ui/utils/assets_path.dart';
@@ -208,9 +210,10 @@ class _EducationScreenState extends State<EducationScreen> {
           educationScreenController.currentPath.value);
       print(educationScreenController.currentPath);
     } else {
+      final userId = UserCredentials.userDetails?.uid ?? "";
       Get.to(() => PdfViewerScreen(
             firebasePath:
-                "${educationScreenController.pathStack.last}/${educationScreenController.pathContent[index]["name"]}",
+                "$userId/${educationScreenController.pathStack.last}/${educationScreenController.pathContent[index]["name"]}",
             pdfName: "${educationScreenController.pathContent[index]["name"]}",
           ));
     }

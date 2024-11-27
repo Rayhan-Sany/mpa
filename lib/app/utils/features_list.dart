@@ -9,7 +9,7 @@ class FeatureLIst {
   ];
 
   static List<Map<String, String>> entertainmentFeaturesList = [
-    {"Name": "Multimedia", "Logo": AssetsPath.entertainmentLogo},
-    {"Name": "Story Books", "Logo": AssetsPath.notesLogo}
+    {"Name": "Multimedia", "Logo": AssetsPath.videosIcon},
+    {"Name": "Books", "Logo": AssetsPath.booksIcon}
   ];
 }
